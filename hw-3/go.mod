@@ -1,4 +1,4 @@
-module github.com/alikhanz/golang-otus-tasks/hw-2
+module github.com/alikhanz/golang-otus-tasks/hw-3
 
 go 1.13
 
