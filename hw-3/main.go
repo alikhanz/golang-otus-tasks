@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	fmt.Println(regexp.Match(`^\w$`, []byte(`,`)))
 	fmt.Println(Top10("cat and ,dog one-two, - dog! two cats , and ?one man"))
 	fmt.Println(Top10("one one one one one one one one one one two two two two three three three four five six seven eight nine ten eleven"))
 }
