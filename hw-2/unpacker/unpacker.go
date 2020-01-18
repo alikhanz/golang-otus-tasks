@@ -6,16 +6,20 @@ import (
 	"strings"
 )
 
+// EscapeChar символ экранирования.
 const EscapeChar = '\\'
 
+// UnPacker структура распаковщика.
 type UnPacker struct {
 
 }
 
+// New функция конструктор.
 func New() UnPacker {
 	return UnPacker{}
 }
 
+// Unpack функция распаковки строки.
 func (u UnPacker) Unpack(s string) (string, error) {
 	result := strings.Builder{}
 
