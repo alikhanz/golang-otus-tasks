@@ -20,6 +20,9 @@ func TestUnpackIncorrectString(t *testing.T)  {
 		{
 			Actual:   "45",
 		},
+		{
+			Actual:   `\`,
+		},
 	}
 
 	for _, d := range testData {
@@ -35,20 +38,24 @@ func TestUnpack(t *testing.T) {
 
 	var testData = []TestStringData {
 		{
-			Actual:   "а1",
-			Expected: "а",
+			Actual:   "a1",
+			Expected: "a",
 		},
 		{
-			Actual:   "а10",
-			Expected: "аааааааааа",
+			Actual:   "a2",
+			Expected: "aa",
 		},
 		{
-			Actual:   "а10б",
-			Expected: "ааааааааааб",
+			Actual:   "a10",
+			Expected: "aaaaaaaaaa",
 		},
 		{
-			Actual:   "а1б",
-			Expected: "аб",
+			Actual:   "a10b",
+			Expected: "aaaaaaaaaab",
+		},
+		{
+			Actual:   "a1b",
+			Expected: "ab",
 		},
 		{
 			Actual:   "a4bc2d5e",
@@ -57,6 +64,30 @@ func TestUnpack(t *testing.T) {
 		{
 			Actual:   "abcd",
 			Expected: "abcd",
+		},
+		{
+			Actual:   `abcd\1`,
+			Expected: "abcd1",
+		},
+		{
+			Actual:   `a\\3`,
+			Expected: `a\\\`,
+		},
+		{
+			Actual:   `\\`,
+			Expected: `\`,
+		},
+		{
+			Actual:   `qwe\45`,
+			Expected: `qwe44444`,
+		},
+		{
+			Actual:   `qwe\\5`,
+			Expected: `qwe\\\\\`,
+		},
+		{
+			Actual:   `qwe\210`,
+			Expected: `qwe2222222222`,
 		},
 	}
 
