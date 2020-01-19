@@ -26,27 +26,34 @@ func (u UnPacker) Unpack(s string) (string, error) {
 	var previousResultChar rune
 	var previousChar rune
 	var mustBeEscaped bool
+	sRune := []rune(s)
 
 	sRepeatCount := strings.Builder{}
-	stringLength := len([]rune(s))
+	stringLength := len(sRune)
 
-	i := 0
-	for _, c := range s {
+	for i, c := range sRune {
 		if i > 0 {
-			previousChar = rune(s[i-1])
+			previousChar = sRune[i-1]
 		}
 
-		if isEscapeChar(previousChar) && (isNumber(c) || isEscapeChar(c)) && !isEscapeChar(previousResultChar) {
+		if isEscapeChar(previousChar) && !mustBeEscaped {
 			mustBeEscaped = true
 		} else {
 			mustBeEscaped = false
 		}
 
-		i++
-		isLastChar := i == stringLength
+		if mustBeEscaped && !canBeEscaped(c) {
+			return "", errors.New("экранирован некорректный символ")
+		}
+
+		isLastChar := i == stringLength-1
 
 		if isLastChar && isEscapeChar(c) && !mustBeEscaped {
 			return "", errors.New("некорректная строка")
+		}
+
+		if isEscapeChar(c) && !mustBeEscaped {
+			continue
 		}
 
 		if isNumber(c) && !mustBeEscaped {
@@ -88,8 +95,11 @@ func (u UnPacker) Unpack(s string) (string, error) {
 			previousResultChar = c
 		}
 	}
-
 	return result.String(), nil
+}
+
+func canBeEscaped(c rune) bool {
+	return isNumber(c) || isEscapeChar(c)
 }
 
 // unicode.IsDigit() не всегда ведет себя так как ожидается, поэтому костылим своё.

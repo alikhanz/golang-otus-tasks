@@ -1,6 +1,7 @@
 package unpacker
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -23,13 +24,16 @@ func TestUnpackIncorrectString(t *testing.T)  {
 		{
 			Actual:   `\`,
 		},
+		{
+			Actual:   `\й`,
+		},
 	}
 
 	for _, d := range testData {
 		result, err := u.Unpack(d.Actual)
 
-		assert.Empty(t, result)
-		assert.Error(t, err)
+		assert.Empty(t, result, fmt.Sprintf("Actual: %s", d.Actual))
+		assert.Error(t, err, fmt.Sprintf("Actual: %s", d.Actual))
 	}
 }
 
@@ -78,6 +82,10 @@ func TestUnpack(t *testing.T) {
 			Expected: `\`,
 		},
 		{
+			Actual:   `\\\\`,
+			Expected: `\\`,
+		},
+		{
 			Actual:   `qwe\45`,
 			Expected: `qwe44444`,
 		},
@@ -89,12 +97,16 @@ func TestUnpack(t *testing.T) {
 			Actual:   `qwe\210`,
 			Expected: `qwe2222222222`,
 		},
+		{
+			Actual:   `аббб\210`,
+			Expected: `аббб2222222222`,
+		},
 	}
 
 	for _, d := range testData {
 		result, err := u.Unpack(d.Actual)
 
-		assert.Equal(t, d.Expected, result)
-		assert.NoError(t, err)
+		assert.Equal(t, d.Expected, result, fmt.Sprintf("Unpack string: %s", d.Actual))
+		assert.NoError(t, err, fmt.Sprintf("Unpack string: %s", d.Actual))
 	}
 }
