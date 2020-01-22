@@ -101,6 +101,22 @@ func TestUnpack(t *testing.T) {
 			Actual:   `аббб\210`,
 			Expected: `аббб2222222222`,
 		},
+		{
+			Actual:   `а0`,
+			Expected: ``,
+		},
+		{
+			Actual:   `а00`,
+			Expected: ``,
+		},
+		{
+			Actual:   `а010`,
+			Expected: `аааааааааа`,
+		},
+		{
+			Actual:   `а2`,
+			Expected: `аа`,
+		},
 	}
 
 	for _, d := range testData {

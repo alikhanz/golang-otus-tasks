@@ -25,6 +25,7 @@ func (u UnPacker) Unpack(s string) (string, error) {
 
 	var previousResultChar rune
 	var previousChar rune
+	var nextChar rune
 	var mustBeEscaped bool
 	sRune := []rune(s)
 
@@ -34,6 +35,12 @@ func (u UnPacker) Unpack(s string) (string, error) {
 	for i, c := range sRune {
 		if i > 0 {
 			previousChar = sRune[i-1]
+		}
+
+		if i < len(sRune)-1 {
+			nextChar = sRune[i+1]
+		} else {
+			nextChar = 0
 		}
 
 		if isEscapeChar(previousChar) && !mustBeEscaped {
@@ -71,7 +78,7 @@ func (u UnPacker) Unpack(s string) (string, error) {
 			}
 
 			if !isLastChar {
-				// В случае когда это последний символ в строке - продолжаем выполнение цикла для распаковки
+				// В случае когда это последнее число в строке - продолжаем выполнение цикла для распаковки
 				// последнего встреченного символа
 				continue
 			}
@@ -85,13 +92,16 @@ func (u UnPacker) Unpack(s string) (string, error) {
 				return "", err
 			}
 
-			for j := 0; j < repeatCount-1; j++ {
+			for j := 0; j < repeatCount; j++ {
 				result.WriteRune(previousResultChar)
 			}
 		}
 
 		if (!isNumber(c) && !isEscapeChar(c)) || mustBeEscaped {
-			result.WriteRune(c)
+			if !isNumber(nextChar) {
+				result.WriteRune(c)
+			}
+
 			previousResultChar = c
 		}
 	}
