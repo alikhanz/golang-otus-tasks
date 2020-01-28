@@ -17,5 +17,5 @@ func main() {
 }
 
 func Copy(src, dst string, limit, offset int) error {
-
+	return nil
 }
