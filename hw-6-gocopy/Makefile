@@ -1,5 +1,5 @@
 test:
-	go test ./...
+	go test
 run:
 	go run main.go
 build:
