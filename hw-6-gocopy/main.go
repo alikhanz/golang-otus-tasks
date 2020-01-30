@@ -30,16 +30,20 @@ func main() {
 	}
 }
 
+// ReadChunkSize size of each chunk
 const ReadChunkSize = 1024 * 4 // 4KB
 
+// GoCopy structure
 type GoCopy struct {
 	barEnabled bool
 }
 
+// NewGoCopy constructor
 func NewGoCopy() GoCopy {
 	return GoCopy{barEnabled: true}
 }
 
+// Copy copy function
 func (g *GoCopy) Copy(src, dst string, limit, offset int64) (err error) {
 	srcFile, err := os.OpenFile(src, os.O_RDONLY, 0755)
 	defer func() {
