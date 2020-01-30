@@ -6,8 +6,6 @@ import (
 	"gotest.tools/golden"
 	"os"
 	"path/filepath"
-
-	//"path/filepath"
 	"testing"
 )
 
