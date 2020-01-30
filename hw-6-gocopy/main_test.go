@@ -64,7 +64,7 @@ func TestIncorrectLimitCopy(t *testing.T) {
 }
 
 func TestIncorrectPath(t *testing.T) {
-	err := copyTestFile(t, 0,0)
+	err := copyTestFile(t, 0, 0)
 	assert.Error(t, err)
 }
 

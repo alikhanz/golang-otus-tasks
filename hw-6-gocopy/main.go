@@ -30,14 +30,14 @@ func main() {
 	}
 }
 
-const ReadChunkSize = 1024*4 // 4KB
+const ReadChunkSize = 1024 * 4 // 4KB
 
 type GoCopy struct {
 	barEnabled bool
 }
 
 func NewGoCopy() GoCopy {
-	return GoCopy{barEnabled:true}
+	return GoCopy{barEnabled: true}
 }
 
 func (g *GoCopy) Copy(src, dst string, limit, offset int64) (err error) {
@@ -72,7 +72,6 @@ func (g *GoCopy) Copy(src, dst string, limit, offset int64) (err error) {
 			err = cerr
 		}
 	}()
-
 
 	if err != nil {
 		return err
