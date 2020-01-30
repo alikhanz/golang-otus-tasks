@@ -2,98 +2,109 @@ package runner
 
 import (
 	"errors"
+	"sync"
 )
-
-type Runner struct {
-	executedTasksCount  int
-	errorsCount         int
-	scheduledTasksCount int
-}
 
 type ExecutionResult struct {
 	Err error
 }
 
-func New() *Runner {
-	return &Runner{}
-}
+func Run(tasks []func() error, concurrentCount int, maxErrorsCount int) error {
+	if concurrentCount < 1 {
+		return errors.New("concurrentCount must be more than 0")
+	}
 
-func (r *Runner) Run(tasks []func() error, concurrentCount int, maxErrorsCount int) error {
+	if maxErrorsCount < 1 {
+		return errors.New("maxErrorsCount must be more than 0")
+	}
+
 	resultsChan := make(chan ExecutionResult)
-	finishChan := make(chan error)
-	lockChan := make(chan struct{})
+	exitChan := make(chan struct{}, 1)
 
-	defer close(finishChan)
-	defer close(lockChan)
 	defer close(resultsChan)
+	defer close(exitChan)
 
-	go r.runTasks(tasks, concurrentCount, resultsChan, finishChan, lockChan)
-	go r.collectResults(len(tasks), concurrentCount, maxErrorsCount, resultsChan, finishChan, lockChan)
+	var wg sync.WaitGroup
 
-	return <-finishChan
+	go runTasks(tasks, concurrentCount, resultsChan, exitChan, &wg)
+	err := collectResults(len(tasks), maxErrorsCount, resultsChan, exitChan, &wg)
+
+	//wg.Wait()
+
+	return err
 }
 
-func (r *Runner) collectResults(
+func collectResults(
 	tasksCount int,
-	concurrentCount int,
 	maxErrorsCount int,
 	resultsChan <-chan ExecutionResult,
-	finishChan chan<- error,
-	lockChan chan<- struct{},
-) {
+	exitChan chan struct{},
+	wg *sync.WaitGroup,
+) error {
+	//defer func() { exitChan <- struct{}{} }()
+
+	var executedTasksCount, errorsCount int
+	var err error
+
 	for {
-		if r.executedTasksCount == tasksCount {
-			finishChan <- nil
+		if executedTasksCount == tasksCount {
+			exitChan <- struct{}{}
 		}
 
-		if r.executedTasksCount == 0 || (r.executedTasksCount%concurrentCount) == 0 {
-			lockChan <- struct{}{}
-		}
 		select {
 		case result, ok := <-resultsChan:
 			if !ok {
-				return
+				return err
 			}
-			r.executedTasksCount++
+			executedTasksCount++
 
 			if result.Err != nil {
-				r.errorsCount++
+				errorsCount++
 			}
 
-			if r.errorsCount >= maxErrorsCount {
-				finishChan <- errors.New("Too many errors")
-				return
+			if errorsCount >= maxErrorsCount {
+				err = errors.New("too many errors")
+				exitChan <- struct{}{}
 			}
 		}
 	}
 }
 
-func (r *Runner) runTasks(
+func runTasks(
 	tasks []func() error,
 	concurrentCount int,
 	resultsChan chan ExecutionResult,
-	finishChan <-chan error, lockChan <-chan struct{},
+	exitChan chan struct{},
+	wg *sync.WaitGroup,
 ) {
-	totalScheduledTasksCount := 0
+	scheduleChan := make(chan struct{}, concurrentCount)
+	defer close(scheduleChan)
+
+	scheduledTasksCount := 0
 
 	if concurrentCount > len(tasks) {
 		concurrentCount = len(tasks)
 	}
 
-	for len(tasks) > totalScheduledTasksCount {
-		<-lockChan
-		for j := 0; j < concurrentCount; j++ {
-			select {
-			case <-finishChan:
+	for len(tasks) > scheduledTasksCount {
+		select {
+			case <-exitChan:
 				return
-			default:
-				go r.runTask(tasks[totalScheduledTasksCount], resultsChan)
-				totalScheduledTasksCount++
+			case scheduleChan <- struct{}{}:
+				wg.Add(1)
+				go runTask(tasks[scheduledTasksCount], resultsChan, scheduleChan, wg)
+				scheduledTasksCount++
 			}
-		}
 	}
 }
 
-func (r *Runner) runTask(task func() error, resultsChan chan<- ExecutionResult) {
+func runTask(
+	task func() error,
+	resultsChan chan<- ExecutionResult,
+	scheduleChan <-chan struct{},
+	wg *sync.WaitGroup,
+) {
 	resultsChan <- ExecutionResult{Err: task()}
+	<-scheduleChan
+	wg.Done()
 }
