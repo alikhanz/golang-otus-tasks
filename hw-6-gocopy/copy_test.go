@@ -9,24 +9,11 @@ import (
 	"testing"
 )
 
-func TestMain(m *testing.M) {
-	m.Run()
-
-	files, _ := filepath.Glob("testdata/*")
-	for _, f := range files {
-		if f != ".gitignore" {
-			exclude, _ := filepath.Match("*/.gitignore", f)
-			if !exclude {
-				_ = os.Remove(f)
-			}
-		}
-	}
-}
-
 func TestSuccessFullCopy(t *testing.T) {
 	makeTmpFiles(t, "1234567890", "1234567890")
 	err := copyTestFile(t, 0, 0)
 	compareFiles(t)
+	rmTestFiles(t)
 	assert.NoError(t, err)
 }
 
@@ -34,6 +21,7 @@ func TestSuccessLimitCopy(t *testing.T) {
 	makeTmpFiles(t, "1234567890", "12345")
 	err := copyTestFile(t, 5, 0)
 	compareFiles(t)
+	rmTestFiles(t)
 	assert.NoError(t, err)
 }
 
@@ -41,6 +29,7 @@ func TestSuccessOffsetCopy(t *testing.T) {
 	makeTmpFiles(t, "1234567890", "67890")
 	err := copyTestFile(t, 0, 5)
 	compareFiles(t)
+	rmTestFiles(t)
 	assert.NoError(t, err)
 }
 
@@ -48,6 +37,7 @@ func TestSuccessLimitAndOffsetCopy(t *testing.T) {
 	makeTmpFiles(t, "1234567890", "67890")
 	err := copyTestFile(t, 5, 5)
 	compareFiles(t)
+	rmTestFiles(t)
 	assert.NoError(t, err)
 }
 
@@ -97,4 +87,11 @@ func makeTmpFiles(t *testing.T, inputValue, expectedValue string) {
 
 func compareFiles(t *testing.T) {
 	golden.AssertBytes(t, golden.Get(t, t.Name()+".output"), t.Name()+".golden")
+}
+
+func rmTestFiles(t *testing.T) {
+	files, _ := filepath.Glob(filepath.Join("testdata", t.Name()+".*"))
+	for _, f := range files {
+		_ = os.Remove(f)
+	}
 }
