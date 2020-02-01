@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/gookit/color"
 	"os"
 )
@@ -19,7 +18,7 @@ func main() {
 	flag.BoolVar(&progressBarEnabled, "progress", true, "true/false")
 
 	flag.Parse()
-fmt.Println(progressBarEnabled)
+
 	c := NewGoCopy()
 
 	err := c.Copy(from, to, limit, offset, progressBarEnabled)
