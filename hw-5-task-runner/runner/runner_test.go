@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const TasksCount = 20
+const TasksCount = 10
 const ConcurrentCount = 5
 const ErrorsCount = 2
 
@@ -48,7 +48,10 @@ func TestRunner_RunErrors(t *testing.T) {
 	}
 
 	tasks := make([]func() error, 0, 1)
-
+	tasks = append(tasks, func() error {
+		time.Sleep(100 * time.Millisecond)
+		return nil
+	})
 	tasks = append(tasks, func() error {
 		return nil
 	})
@@ -74,7 +77,10 @@ func TestRunner_RunFailedOneTask(t *testing.T) {
 func TestRunner_RunSuccessMany(t *testing.T) {
 	tasks := make([]func() error, 0, 1)
 	var executedCount int
-
+	tasks = append(tasks, func() error {
+		time.Sleep(100 * time.Millisecond)
+		return nil
+	})
 	for i := 0; i < TasksCount; i++ {
 		tasks = append(tasks, func() error {
 			executedCount++
@@ -83,7 +89,7 @@ func TestRunner_RunSuccessMany(t *testing.T) {
 	}
 
 	tasks = append(tasks, func() error {
-		time.Sleep(1 * time.Second)
+		time.Sleep(100 * time.Millisecond)
 		return nil
 	})
 	err := Run(tasks, ConcurrentCount, ErrorsCount)
@@ -98,6 +104,9 @@ func TestRunner_RunFailMany(t *testing.T) {
 
 	for i := 0; i < TasksCount; i++ {
 		tasks = append(tasks, func() error {
+			if i % 3 == 0 {
+				time.Sleep(100*time.Millisecond)
+			}
 			executedCount++
 			return errors.New("Mew mew")
 		})
@@ -106,5 +115,5 @@ func TestRunner_RunFailMany(t *testing.T) {
 	err := Run(tasks, ConcurrentCount, ErrorsCount)
 
 	assert.Error(t, err)
-	assert.True(t, executedCount < ConcurrentCount+ErrorsCount)
+	assert.LessOrEqual(t, executedCount, ConcurrentCount+ErrorsCount)
 }

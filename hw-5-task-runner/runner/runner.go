@@ -21,64 +21,52 @@ func Run(tasks []func() error, concurrentCount int, maxErrorsCount int) error {
 	resultsChan := make(chan ExecutionResult)
 	exitChan := make(chan struct{}, 1)
 
-	defer close(resultsChan)
 	defer close(exitChan)
 
-	var wg sync.WaitGroup
-
-	go runTasks(tasks, concurrentCount, resultsChan, exitChan, &wg)
-	err := collectResults(len(tasks), maxErrorsCount, resultsChan, exitChan, &wg)
-
-	//wg.Wait()
+	go runTasks(tasks, concurrentCount, resultsChan, exitChan)
+	err := collectResults(maxErrorsCount, resultsChan, exitChan)
 
 	return err
 }
 
 func collectResults(
-	tasksCount int,
 	maxErrorsCount int,
 	resultsChan <-chan ExecutionResult,
-	exitChan chan struct{},
-	wg *sync.WaitGroup,
+	exitChan chan<- struct{},
 ) error {
-	//defer func() { exitChan <- struct{}{} }()
-
 	var executedTasksCount, errorsCount int
 	var err error
 
-	for {
-		if executedTasksCount == tasksCount {
+	for result := range resultsChan {
+		executedTasksCount++
+
+		if result.Err != nil {
+			errorsCount++
+		}
+
+		if errorsCount == maxErrorsCount {
+			err = errors.New("too many errors")
 			exitChan <- struct{}{}
 		}
-
-		select {
-		case result, ok := <-resultsChan:
-			if !ok {
-				return err
-			}
-			executedTasksCount++
-
-			if result.Err != nil {
-				errorsCount++
-			}
-
-			if errorsCount >= maxErrorsCount {
-				err = errors.New("too many errors")
-				exitChan <- struct{}{}
-			}
-		}
 	}
+
+	return err
 }
 
 func runTasks(
 	tasks []func() error,
 	concurrentCount int,
-	resultsChan chan ExecutionResult,
-	exitChan chan struct{},
-	wg *sync.WaitGroup,
+	resultsChan chan<- ExecutionResult,
+	exitChan <-chan struct{},
 ) {
+	wg := sync.WaitGroup{}
 	scheduleChan := make(chan struct{}, concurrentCount)
-	defer close(scheduleChan)
+
+	defer func() {
+		wg.Wait()
+		close(resultsChan)
+		close(scheduleChan)
+	}()
 
 	scheduledTasksCount := 0
 
@@ -86,13 +74,13 @@ func runTasks(
 		concurrentCount = len(tasks)
 	}
 
-	for len(tasks) > scheduledTasksCount {
+	for _, task := range tasks {
 		select {
 			case <-exitChan:
 				return
 			case scheduleChan <- struct{}{}:
 				wg.Add(1)
-				go runTask(tasks[scheduledTasksCount], resultsChan, scheduleChan, wg)
+				go runTask(task, resultsChan, scheduleChan, &wg)
 				scheduledTasksCount++
 			}
 	}
@@ -104,7 +92,7 @@ func runTask(
 	scheduleChan <-chan struct{},
 	wg *sync.WaitGroup,
 ) {
+	defer func() {wg.Done()}()
 	resultsChan <- ExecutionResult{Err: task()}
 	<-scheduleChan
-	wg.Done()
 }
