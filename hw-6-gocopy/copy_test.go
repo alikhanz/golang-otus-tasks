@@ -68,13 +68,13 @@ func TestIncorrectPath(t *testing.T) {
 
 func copyTestFile(t *testing.T, limit, offset int64) error {
 	c := NewGoCopy()
-	c.barEnabled = false
 
 	return c.Copy(
 		golden.Path(t.Name()+".input"),
 		golden.Path(t.Name()+".output"),
 		limit,
 		offset,
+		false,
 	)
 }
 
