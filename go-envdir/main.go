@@ -14,6 +14,7 @@ func main() {
 	env, err := ReadDir(os.Args[1])
 
 	if err != nil {
+		fmt.Printf("%s", err)
 		os.Exit(111)
 	}
 
