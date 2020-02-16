@@ -89,6 +89,26 @@ func TestMemory_FetchByIdNotExist(t *testing.T) {
 	assert.IsType(t, err, event.NotFoundError{})
 }
 
+func TestMemory_FetchBetweenDates(t *testing.T) {
+	s := NewMemoryStorage()
+
+	for i := 0; i < 3; i++ {
+		e := makeEvent()
+		e.SetDateTime(time.Date(2000, time.Month(1+i), 1, 0, 0, 0, 0, time.Local))
+		err := s.Save(&e)
+		assert.NoError(t, err, "Failed event save")
+	}
+
+	from := time.Date(2000, 1, 31, 0, 0, 0, 0, time.Local)
+	to := time.Date(2000, 2, 1, 0, 0, 0, 0, time.Local)
+	events, err := s.FetchBetweenDates(from, to)
+	assert.NoError(t, err)
+	assert.Len(t, events, 1)
+
+	dt := time.Date(2000, 2, 1, 0, 0, 0, 0, time.Local)
+	assert.Equal(t, events[0].DateTime(), dt)
+}
+
 func makeEvent() event.Event {
 	return *event.NewEvent("Test", "Test description", time.Now(), false)
 }
