@@ -1,4 +1,4 @@
-package memory
+package storage
 
 import (
 	"github.com/alikhanz/golang-otus-tasks/hw-8-calendar/pkg/event"
@@ -12,47 +12,51 @@ func TestMemory_SaveNewEvent(t *testing.T) {
 	s := NewMemoryStorage()
 	e := makeEvent()
 
-	err := s.Save(&e)
+	id, err := s.Save(e)
 
 	assert.NoError(t, err, "Failed saving new event")
-	assert.NotEqual(t, e.Id(), uuid.Nil)
+	assert.NotEqual(t, id, uuid.Nil)
 }
 
 func TestMemory_UpdateEvent(t *testing.T) {
 	s := NewMemoryStorage()
 	e := makeEvent()
 
-	err := s.Save(&e)
+	id, err := s.Save(e)
 	assert.NoError(t, err, "Failed saving new event")
 
-	e.SetTitle("Updated title")
-	e.SetDescription("Updated description")
-	e.SetDateTime(time.Date(2000, 1, 1, 0, 0, 0, 0, time.Local))
-	e.SetRepeatable(true)
+	e, _ = s.FetchById(id)
 
-	err = s.Save(&e)
+	e.Title = "Updated title"
+	e.Description = "Updated description"
+	e.DateTime = time.Date(2000, 1, 1, 0, 0, 0, 0, time.Local)
+	e.Repeatable = true
+
+	id, err = s.Save(e)
 	assert.NoError(t, err, "Failed event save")
 
-	sEvent, err := s.FetchById(e.Id())
+	sEvent, err := s.FetchById(e.Id)
 	assert.NoError(t, err, "Failed fetch event from storage")
 
-	assert.NotEqual(t, e.Id(), uuid.Nil)
-	assert.Equal(t, e, *sEvent)
+	assert.NotEqual(t, e.Id, uuid.Nil)
+	assert.Equal(t, e, sEvent)
 }
 
 func TestMemory_RemoveEvent(t *testing.T) {
 	s := NewMemoryStorage()
 	e := makeEvent()
 
-	err := s.Save(&e)
+	id, err := s.Save(e)
 
 	assert.NoError(t, err, "Failed saving new event")
-	assert.NotEqual(t, e.Id(), uuid.Nil)
+	assert.NotEqual(t, id, uuid.Nil)
+
+	e, _ = s.FetchById(id)
 
 	err = s.Remove(e)
 	assert.NoError(t, err, "Failed removing event")
 
-	_, err = s.FetchById(e.Id())
+	_, err = s.FetchById(e.Id)
 	assert.Error(t, err)
 	assert.IsType(t, err, event.NotFoundError{})
 }
@@ -60,7 +64,7 @@ func TestMemory_RemoveEvent(t *testing.T) {
 func TestMemory_RemoveNotExistEvent(t *testing.T) {
 	s := NewMemoryStorage()
 	e := makeEvent()
-	e.SetId(uuid.New())
+	e.Id = uuid.New()
 
 	err := s.Remove(e)
 	assert.Error(t, err)
@@ -71,12 +75,12 @@ func TestMemory_FetchById(t *testing.T) {
 	s := NewMemoryStorage()
 	e := makeEvent()
 
-	err := s.Save(&e)
+	id, err := s.Save(e)
 
 	assert.NoError(t, err, "Failed saving new event")
-	assert.NotEqual(t, e.Id(), uuid.Nil)
+	assert.NotEqual(t, id, uuid.Nil)
 
-	ev, err := s.FetchById(e.Id())
+	ev, err := s.FetchById(id)
 	assert.NotNil(t, ev)
 	assert.NoError(t, err)
 }
@@ -84,7 +88,8 @@ func TestMemory_FetchById(t *testing.T) {
 func TestMemory_FetchByIdNotExist(t *testing.T) {
 	s := NewMemoryStorage()
 	ev, err := s.FetchById(uuid.New())
-	assert.Nil(t, ev)
+
+	assert.Empty(t, ev)
 	assert.Error(t, err)
 	assert.IsType(t, err, event.NotFoundError{})
 }
@@ -94,8 +99,8 @@ func TestMemory_FetchBetweenDates(t *testing.T) {
 
 	for i := 0; i < 3; i++ {
 		e := makeEvent()
-		e.SetDateTime(time.Date(2000, time.Month(1+i), 1, 0, 0, 0, 0, time.Local))
-		err := s.Save(&e)
+		e.DateTime = time.Date(2000, time.Month(1+i), 1, 0, 0, 0, 0, time.Local)
+		_, err := s.Save(e)
 		assert.NoError(t, err, "Failed event save")
 	}
 
@@ -106,9 +111,9 @@ func TestMemory_FetchBetweenDates(t *testing.T) {
 	assert.Len(t, events, 1)
 
 	dt := time.Date(2000, 2, 1, 0, 0, 0, 0, time.Local)
-	assert.Equal(t, events[0].DateTime(), dt)
+	assert.Equal(t, events[0].DateTime, dt)
 }
 
 func makeEvent() event.Event {
-	return *event.NewEvent("Test", "Test description", time.Now(), false)
+	return event.NewEvent("Test", "Test description", time.Now(), false)
 }

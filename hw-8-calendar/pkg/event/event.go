@@ -6,11 +6,11 @@ import (
 )
 
 type Event struct {
-	id			uuid.UUID
-	title       string
-	description string
-	dateTime    time.Time
-	repeatable  bool
+	Id          uuid.UUID
+	Title       string
+	Description string
+	DateTime    time.Time
+	Repeatable  bool
 }
 
 func NewEvent(
@@ -18,55 +18,15 @@ func NewEvent(
 	description string,
 	dateTime time.Time,
 	repeatable bool,
-) *Event {
-	return &Event{
-		title:       title,
-		description: description,
-		dateTime:    dateTime,
-		repeatable:  repeatable,
+) Event {
+	return Event{
+		Title:       title,
+		Description: description,
+		DateTime:    dateTime,
+		Repeatable:  repeatable,
 	}
 }
 
-func (e *Event) Id() uuid.UUID {
-	return e.id
-}
-
-func (e *Event) SetId(id uuid.UUID) {
-	e.id = id
-}
-
-func (e *Event) Title() string {
-	return e.title
-}
-
-func (e *Event) SetTitle(title string) {
-	e.title = title
-}
-
-func (e *Event) Description() string {
-	return e.description
-}
-
-func (e *Event) SetDescription(description string) {
-	e.description = description
-}
-
-func (e Event) DateTime() time.Time {
-	return e.dateTime
-}
-
-func (e *Event) SetDateTime(dateTime time.Time) {
-	e.dateTime = dateTime
-}
-
-func (e *Event) Repeatable() bool {
-	return e.repeatable
-}
-
-func (e *Event) SetRepeatable(repeatable bool) {
-	e.repeatable = repeatable
-}
-
 func (e *Event) IsNew() bool {
-	return e.id == uuid.Nil
+	return e.Id == uuid.Nil
 }
