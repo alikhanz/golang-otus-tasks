@@ -10,7 +10,7 @@ require (
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.6.2 // indirect
+	github.com/spf13/viper v1.6.2
 	github.com/stretchr/testify v1.4.0
 	github.com/urfave/negroni v1.0.0
 	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect

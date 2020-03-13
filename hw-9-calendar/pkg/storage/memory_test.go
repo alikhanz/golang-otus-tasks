@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/alikhanz/golang-otus-tasks/hw-8-calendar/pkg/event"
+	"github.com/alikhanz/golang-otus-tasks/hw-9-calendar/pkg/event"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
