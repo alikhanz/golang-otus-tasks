@@ -54,6 +54,11 @@ func write(conn net.Conn) {
 			break
 		}
 	}
+	err := conn.Close()
+
+	if err != nil {
+		writeError(err)
+	}
 }
 
 func read(conn net.Conn, wg *sync.WaitGroup) {
