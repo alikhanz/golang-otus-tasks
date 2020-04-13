@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package calendar;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+option go_package = "calendar";
+
+service Calendar {
+    rpc CreateEvent (CreateEventRequest) returns (Event) {
+        option (google.api.http) = {
+            post: "/event"
+        };
+    };
+    rpc UpdateEvent (Event) returns (Event) {
+        option (google.api.http) = {
+            put: "/event/{event_id}"
+        };
+    };
+    rpc RemoveEvent (RemoveEventRequest) returns (RemoveEventResponse) {
+        option (google.api.http) = {
+            delete: "/event/{event_id}"
+        };
+    };
+    rpc GetEventsList(GetEventsListRequest) returns (EventsList) {
+        option (google.api.http) = {
+            get: "/events"
+        };
+    };
+}
+
+message Event {
+    string event_id = 1;
+    string title = 2;
+    string description = 3;
+    google.protobuf.Timestamp time = 4;
+    bool repeatable = 5;
+}
+
+message EventsList {
+    repeated Event events = 1;
+}
+
+message CreateEventRequest {
+    string title = 2;
+    string description = 3;
+    google.protobuf.Timestamp time = 4;
+    bool repeatable = 5;
+}
+
+message RemoveEventRequest {
+    string event_id = 1;
+}
+message RemoveEventResponse {
+}
+
+message GetEventsListRequest {
+    google.protobuf.Timestamp fromDate = 1;
+    google.protobuf.Timestamp toDate = 2;
+}
