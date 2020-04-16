@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/grpc-gateway v1.9.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/rs/zerolog v1.18.0
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect

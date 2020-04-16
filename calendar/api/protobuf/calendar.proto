@@ -5,7 +5,7 @@ package calendar;
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
-option go_package = "calendar";
+option go_package = "calendarPb";
 
 service Calendar {
     rpc CreateEvent (CreateEventRequest) returns (Event) {
