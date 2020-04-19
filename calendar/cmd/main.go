@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"github.com/alikhanz/golang-otus-tasks/calendar/internal/logger"
 	"github.com/alikhanz/golang-otus-tasks/calendar/internal/server"
+	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/calendar"
+	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/storage"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -56,9 +58,14 @@ func initConfig(configPath string) {
 }
 
 func initServer() {
-	s := server.NewServer(server.Config{
-		GrpcPort:   conf.GrpcPort,
-		HttpListen: conf.HttpListen,
-	})
+	cal := calendar.NewCalendar(storage.NewMemoryStorage())
+
+	s := server.NewServer(
+		server.Config{
+			GrpcPort:   conf.GrpcPort,
+			HttpListen: conf.HttpListen,
+		},
+		cal,
+	)
 	log.Fatal().Err(s.Run())
 }

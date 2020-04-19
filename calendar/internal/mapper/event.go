@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	"github.com/alikhanz/golang-otus-tasks/calendar/pb"
 	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/event"
+	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/pb"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"

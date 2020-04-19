@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/alikhanz/golang-otus-tasks/calendar/pb"
 	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/calendar"
+	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/pb"
 	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/validator"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
@@ -42,6 +42,12 @@ func (val *Validator) ValidateEventExist(e *pb.Event) error {
 	if err != nil {
 		v.AddError("event not found")
 	}
+
+	if v.HasErrors() {
+		return errors.New(v.RenderErrors())
+	}
+
+	return nil
 }
 
 func (*Validator) ValidateEventFields(e *pb.Event) error {

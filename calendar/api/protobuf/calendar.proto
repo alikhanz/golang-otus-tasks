@@ -5,17 +5,19 @@ package calendar;
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/alikhanz/golang-otus-tasks/calendar/pb";
+option go_package = "github.com/alikhanz/golang-otus-tasks/calendar/pkg/pb";
 
 service Calendar {
     rpc CreateEvent (CreateEventRequest) returns (Event) {
         option (google.api.http) = {
             post: "/event"
+            body: "*"
         };
     };
     rpc UpdateEvent (Event) returns (Event) {
         option (google.api.http) = {
             put: "/event/{event_id}"
+            body: "*"
         };
     };
     rpc RemoveEvent (RemoveEventRequest) returns (RemoveEventResponse) {

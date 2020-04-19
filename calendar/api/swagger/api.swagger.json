@@ -1,9 +1,13 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/protobuf/calendar.proto",
+    "title": "calendar.proto",
     "version": "version not set"
   },
+  "schemes": [
+    "http",
+    "https"
+  ],
   "consumes": [
     "application/json"
   ],
@@ -20,14 +24,18 @@
             "schema": {
               "$ref": "#/definitions/calendarEvent"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/calendarCreateEventRequest"
+            }
+          }
+        ],
         "tags": [
           "Calendar"
         ]
@@ -41,12 +49,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/calendarRemoveEventResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -70,12 +72,6 @@
             "schema": {
               "$ref": "#/definitions/calendarEvent"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -84,6 +80,14 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/calendarEvent"
+            }
           }
         ],
         "tags": [
@@ -99,12 +103,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/calendarEventsList"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -131,6 +129,25 @@
     }
   },
   "definitions": {
+    "calendarCreateEventRequest": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "repeatable": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
     "calendarEvent": {
       "type": "object",
       "properties": {
@@ -166,39 +183,6 @@
     },
     "calendarRemoveEventResponse": {
       "type": "object"
-    },
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "type_url": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string",
-          "format": "byte"
-        }
-      }
-    },
-    "runtimeError": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "string"
-        },
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        },
-        "details": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/protobufAny"
-          }
-        }
-      }
     }
   }
 }

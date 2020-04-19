@@ -3,10 +3,10 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/alikhanz/golang-otus-tasks/calendar/pb"
 	"github.com/alikhanz/golang-otus-tasks/calendar/internal/mapper"
 	"github.com/alikhanz/golang-otus-tasks/calendar/internal/middlewares"
 	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/calendar"
+	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/pb"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -26,11 +26,15 @@ type Config struct {
 }
 
 type Server struct {
-	Config Config
+	Config    Config
+	calServer *CalendarServer
 }
 
-func NewServer(config Config) *Server {
-	return &Server{Config: config}
+func NewServer(config Config, cal *calendar.Calendar) *Server {
+	s := &Server{Config: config}
+	s.calServer = NewCalendarServer(cal)
+
+	return s
 }
 
 func (s *Server) Run() error {
@@ -47,7 +51,7 @@ func (s *Server) grpcInit() error {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	pb.RegisterCalendarServer(grpcServer, CalendarServer{})
+	pb.RegisterCalendarServer(grpcServer, s.calServer)
 	return grpcServer.Serve(lis)
 }
 
@@ -60,11 +64,11 @@ func (s *Server) httpInit() error {
 	n := negroni.New(negroni.NewRecovery(), middlewares.NewLogger())
 	n.UseHandler(mux)
 
-	err := pb.RegisterCalendarHandlerServer(ctx, mux, CalendarServer{})
+	err := pb.RegisterCalendarHandlerServer(ctx, mux, s.calServer)
 	if err != nil {
 		return err
 	}
-	return http.ListenAndServe(":8080", n)
+	return http.ListenAndServe(s.Config.HttpListen, n)
 }
 
 var eventMapper *mapper.EventMapper
