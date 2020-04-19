@@ -1,7 +1,7 @@
 package mapper
 
 import (
-	calendarPb "github.com/alikhanz/golang-otus-tasks/calendar/api_pb/api/protobuf"
+	"github.com/alikhanz/golang-otus-tasks/calendar/pb"
 	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/event"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
@@ -11,7 +11,7 @@ import (
 type EventMapper struct {
 }
 
-func (eventMapper *EventMapper) MapPbToModel(inEvent *calendarPb.Event) (event.Event, error) {
+func (eventMapper *EventMapper) MapPbToModel(inEvent *pb.Event) (event.Event, error) {
 	t, err := ptypes.Timestamp(inEvent.Time)
 
 	if err != nil {
@@ -32,10 +32,10 @@ func (eventMapper *EventMapper) MapPbToModel(inEvent *calendarPb.Event) (event.E
 	return resEvent, nil
 }
 
-func (eventMapper *EventMapper) MapModelToPb(ev event.Event) *calendarPb.Event {
+func (eventMapper *EventMapper) MapModelToPb(ev event.Event) *pb.Event {
 	t, _ := ptypes.TimestampProto(ev.DateTime)
 
-	return &calendarPb.Event{
+	return &pb.Event{
 		EventId:     ev.Id.String(),
 		Title:       ev.Title,
 		Description: ev.Description,
@@ -44,8 +44,8 @@ func (eventMapper *EventMapper) MapModelToPb(ev event.Event) *calendarPb.Event {
 	}
 }
 
-func (eventMapper *EventMapper) MapModelListToPb(events []event.Event) []*calendarPb.Event {
-	result := make([]*calendarPb.Event, 0, len(events))
+func (eventMapper *EventMapper) MapModelListToPb(events []event.Event) []*pb.Event {
+	result := make([]*pb.Event, 0, len(events))
 
 	for _, ev := range events {
 		result = append(result, eventMapper.MapModelToPb(ev))

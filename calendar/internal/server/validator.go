@@ -1,14 +1,12 @@
 package server
 
 import (
-	calendarPb "github.com/alikhanz/golang-otus-tasks/calendar/api_pb/api/protobuf"
+	"github.com/alikhanz/golang-otus-tasks/calendar/pb"
 	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/calendar"
 	"github.com/alikhanz/golang-otus-tasks/calendar/pkg/validator"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type Validator struct {
@@ -19,7 +17,7 @@ func NewValidator(cal *calendar.Calendar) *Validator {
 	return &Validator{cal: cal}
 }
 
-func (*Validator) ValidateCreateEventRequest(r *calendarPb.CreateEventRequest) error {
+func (*Validator) ValidateCreateEventRequest(r *pb.CreateEventRequest) error {
 	v := validator.NewValidator()
 	v.ValidateString(r.Title, &validator.NotEmptyStringRule{Field: "Title"})
 	v.ValidateString(r.Description, &validator.NotEmptyStringRule{Field: "Description"})
@@ -31,7 +29,7 @@ func (*Validator) ValidateCreateEventRequest(r *calendarPb.CreateEventRequest) e
 	return nil
 }
 
-func (val *Validator) ValidateEventExist(e *calendarPb.Event) error {
+func (val *Validator) ValidateEventExist(e *pb.Event) error {
 	v := validator.NewValidator()
 	id, err := uuid.Parse(e.EventId)
 
@@ -46,7 +44,7 @@ func (val *Validator) ValidateEventExist(e *calendarPb.Event) error {
 	}
 }
 
-func (*Validator) ValidateEventFields(e *calendarPb.Event) error {
+func (*Validator) ValidateEventFields(e *pb.Event) error {
 	v := validator.NewValidator()
 	v.ValidateString(e.Title, &validator.NotEmptyStringRule{Field: "Title"})
 	v.ValidateString(e.Description, &validator.NotEmptyStringRule{Field: "Description"})
