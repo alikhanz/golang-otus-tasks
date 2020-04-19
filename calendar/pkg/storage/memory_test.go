@@ -53,7 +53,7 @@ func TestMemory_RemoveEvent(t *testing.T) {
 
 	e, _ = s.FetchById(id)
 
-	err = s.Remove(e)
+	err = s.Remove(e.Id)
 	assert.NoError(t, err, "Failed removing event")
 
 	_, err = s.FetchById(e.Id)
@@ -66,7 +66,7 @@ func TestMemory_RemoveNotExistEvent(t *testing.T) {
 	e := makeEvent()
 	e.Id = uuid.New()
 
-	err := s.Remove(e)
+	err := s.Remove(e.Id)
 	assert.Error(t, err)
 	assert.IsType(t, err, event.NotFoundError{})
 }

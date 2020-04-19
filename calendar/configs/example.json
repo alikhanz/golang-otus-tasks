@@ -1,4 +1,5 @@
 {
+  "GrpcPort": 6565,
   "HttpListen": ":8080",
   "LogFile": "",
   "LogLevel":  "debug"

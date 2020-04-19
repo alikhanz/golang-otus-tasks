@@ -6,16 +6,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/alikhanz/golang-otus-tasks/calendar/internal/handlers"
 	"github.com/alikhanz/golang-otus-tasks/calendar/internal/logger"
-	"github.com/alikhanz/golang-otus-tasks/calendar/internal/middlewares"
+	"github.com/alikhanz/golang-otus-tasks/calendar/internal/server"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	"github.com/urfave/negroni"
-	"net/http"
 )
 
 type config struct {
+	GrpcPort   int
 	HttpListen string
 	LogFile    string
 	LogLevel   string
@@ -30,7 +28,7 @@ func main() {
 
 	initConfig(configPath)
 	logger.InitLogger(conf.LogLevel, conf.LogFile)
-	initHttpServer()
+	initServer()
 }
 
 func initConfig(configPath string) {
@@ -44,6 +42,7 @@ func initConfig(configPath string) {
 	}
 
 	viper.SetDefault("HttpListen", ":8080")
+	viper.SetDefault("GrpcPort", 6565)
 	viper.SetDefault("LogFile", "")
 	viper.SetDefault("LogLevel", "warn")
 
@@ -56,14 +55,10 @@ func initConfig(configPath string) {
 	fmt.Println(fmt.Sprintf("%+v", conf))
 }
 
-func initHttpServer() {
-	h := handlers.Handlers{}
-	mux := http.NewServeMux()
-	mux.HandleFunc("/hello/", h.HelloHandler)
-
-	n := negroni.New(negroni.NewRecovery(), middlewares.NewLogger())
-	n.UseHandler(mux)
-
-	log.Debug().Msg(fmt.Sprintf("Starting http server at: %s", conf.HttpListen))
-	log.Fatal().Err(http.ListenAndServe(conf.HttpListen, n)).Msg("Http server stopped")
+func initServer() {
+	s := server.NewServer(server.Config{
+		GrpcPort:   conf.GrpcPort,
+		HttpListen: conf.HttpListen,
+	})
+	log.Fatal().Err(s.Run())
 }

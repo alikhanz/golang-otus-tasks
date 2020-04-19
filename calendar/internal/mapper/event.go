@@ -9,10 +9,9 @@ import (
 )
 
 type EventMapper struct {
-
 }
 
-func (eventMapper *EventMapper) MapPbToModel(inEvent calendarPb.Event) (event.Event, error) {
+func (eventMapper *EventMapper) MapPbToModel(inEvent *calendarPb.Event) (event.Event, error) {
 	t, err := ptypes.Timestamp(inEvent.Time)
 
 	if err != nil {
@@ -33,14 +32,24 @@ func (eventMapper *EventMapper) MapPbToModel(inEvent calendarPb.Event) (event.Ev
 	return resEvent, nil
 }
 
-func (eventMapper *EventMapper) MapModelToPb(ev event.Event) (*calendarPb.Event) {
+func (eventMapper *EventMapper) MapModelToPb(ev event.Event) *calendarPb.Event {
 	t, _ := ptypes.TimestampProto(ev.DateTime)
 
 	return &calendarPb.Event{
-		EventId:              ev.Id.String(),
-		Title:                ev.Title,
-		Description:          ev.Description,
-		Time:                 t,
-		Repeatable:           ev.Repeatable,
+		EventId:     ev.Id.String(),
+		Title:       ev.Title,
+		Description: ev.Description,
+		Time:        t,
+		Repeatable:  ev.Repeatable,
 	}
+}
+
+func (eventMapper *EventMapper) MapModelListToPb(events []event.Event) []*calendarPb.Event {
+	result := make([]*calendarPb.Event, 0, len(events))
+
+	for _, ev := range events {
+		result = append(result, eventMapper.MapModelToPb(ev))
+	}
+
+	return result
 }

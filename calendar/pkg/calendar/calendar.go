@@ -8,7 +8,6 @@ import (
 )
 
 type NewEventUpdateError struct {
-
 }
 
 type UpdateEventError struct {
@@ -75,6 +74,6 @@ func (c *Calendar) FetchBetweenDates(from, to time.Time) ([]event.Event, error) 
 	return c.eventStorage.FetchBetweenDates(from, to)
 }
 
-func (c *Calendar) RemoveEvent(e event.Event) error {
-	return c.eventStorage.Remove(e)
+func (c *Calendar) RemoveEvent(id uuid.UUID) error {
+	return c.eventStorage.Remove(id)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type Storage interface {
-	Remove(event event.Event) error
+	Remove(id uuid.UUID) error
 	Save(event event.Event) (uuid.UUID, error)
 	FetchById(uuid uuid.UUID) (event.Event, error)
 	FetchBetweenDates(from, to time.Time) ([]event.Event, error)

@@ -12,6 +12,10 @@ func (v *Validator) HasErrors() bool {
 	return len(v.errors.errors) > 0
 }
 
+func (v *Validator) AddError(err string) {
+	v.errors.Add(err)
+}
+
 func (v *Validator) RenderErrors() string {
 	return v.errors.Render()
 }

@@ -2,11 +2,11 @@
 // source: api/protobuf/calendar.proto
 
 /*
-Package calendarPb is a reverse proxy.
+Package pb is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package calendarPb
+package pb
 
 import (
 	"context"

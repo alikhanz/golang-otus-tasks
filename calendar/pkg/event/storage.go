@@ -2,12 +2,13 @@ package event
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 )
 
 type NotFoundError struct {
-	Event Event
+	Id uuid.UUID
 }
 
 func (n NotFoundError) Error() string {
-	return fmt.Sprintf("event not found in storage %v", n.Event)
+	return fmt.Sprintf("event %s not found in storage", n.Id.String())
 }

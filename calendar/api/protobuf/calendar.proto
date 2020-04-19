@@ -5,7 +5,7 @@ package calendar;
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
-option go_package = "calendarPb";
+option go_package = "github.com/alikhanz/golang-otus-tasks/calendar/pb";
 
 service Calendar {
     rpc CreateEvent (CreateEventRequest) returns (Event) {
